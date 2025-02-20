@@ -1,0 +1,11 @@
+specVersion: 0.36.0
+name: greeting
+runtime: go
+registry: ko.local/knative-demo
+namespace: default
+created: 2025-02-20T15:06:50.338936Z
+build:
+  builder: pack
+deploy:
+  namespace: default
+  image: ko.local/knative-demo/greeting:latest
