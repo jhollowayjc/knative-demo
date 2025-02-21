@@ -1,0 +1,129 @@
+serviceAccount:
+  name: "temporal-server"
+  # Whether to create service account or not
+  create: true
+
+web:
+  replicaCount: 1
+  additionalEnv:
+    - name: TEMPORAL_SHOW_TEMPORAL_SYSTEM_NAMESPACE
+      value: "true"
+
+admintools:
+  replicaCount: 1
+  metrics:
+    # Annotate pods directly with Prometheus annotations.
+    # Use this if you installed Prometheus from a Helm chart.
+    annotations:
+      enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+
+server:
+  metrics:
+    # Annotate pods directly with Prometheus annotations.
+    # Use this if you installed Prometheus from a Helm chart.
+    annotations:
+      enabled: true
+
+  frontend:
+    metrics:
+      # Annotate pods directly with Prometheus annotations.
+      # Use this if you installed Prometheus from a Helm chart.
+      annotations:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+
+  history:
+    metrics:
+      # Annotate pods directly with Prometheus annotations.
+      # Use this if you installed Prometheus from a Helm chart.
+      annotations:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+
+  matching:
+    metrics:
+      # Annotate pods directly with Prometheus annotations.
+      # Use this if you installed Prometheus from a Helm chart.
+      annotations:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+
+  worker:
+    metrics:
+      # Annotate pods directly with Prometheus annotations.
+      # Use this if you installed Prometheus from a Helm chart.
+      annotations:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+
+  config:
+    persistence:
+      default:
+        driver: "sql"
+
+        sql:
+          driver: "postgres12"
+          host: "postgresql.temporal.svc.cluster.local"
+          port: 5432
+          database: temporal
+          user: temporal
+          existingSecret: "postgres-credentials"
+          maxConns: 20
+          maxConnLifetime: "1h"
+
+      visibility:
+        driver: "sql"
+
+        sql:
+          driver: "postgres12"
+          host: "postgresql.temporal.svc.cluster.local"
+          port: 5432
+          database: temporal_visibility
+          user: temporal
+          existingSecret: "postgres-credentials"
+          maxConns: 20
+          maxConnLifetime: "1h"
+
+cassandra:
+  enabled: false
+
+mysql:
+  enabled: false
+
+postgresql:
+  enabled: true
+
+prometheus:
+  enabled: true
+
+grafana:
+  enabled: false
+
+elasticsearch:
+  enabled: false
+
+schema:
+  setup:
+    enabled: true
+  update:
+    enabled: true

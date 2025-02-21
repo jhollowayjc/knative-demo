@@ -1,0 +1,15 @@
+specVersion: 0.36.0
+name: unsubscribe
+runtime: go
+registry: ko.local/temporal-serverless
+namespace: default
+created: 2025-02-21T20:48:43.00685Z
+build:
+  builder: pack
+run:
+  envs:
+  - name: TEMPORAL_ADDR
+    value: temporal-frontend.temporal.svc.cluster.local:7233
+deploy:
+  namespace: default
+  image: ko.local/temporal-serverless/unsubscribe:latest

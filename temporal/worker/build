@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+#
+# Crufty script to (temporarily) emulate what `func build` does for knative
+# builds a container image for the worker using our build hack
+#
+
+base=$(dirname $(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P ))
+
+docker build \
+  -t temporal-worker:latest \
+  -f ${base}/hack/build/Dockerfile \
+  --build-context=build=${base}/hack/build \
+  ${base}/worker

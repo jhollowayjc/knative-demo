@@ -1,0 +1,89 @@
+package function
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+
+	"go.temporal.io/sdk/client"
+)
+
+var temporalClient client.Client
+
+func init() {
+	var err error
+
+	addr := client.DefaultHostPort
+	if val, ok := os.LookupEnv("TEMPORAL_ADDR"); ok {
+		addr = val
+	}
+
+	// create client and worker
+	temporalClient, err = client.Dial(client.Options{
+		HostPort: addr,
+	})
+	if err != nil {
+		panic(fmt.Errorf("Unable to create Temporal Client: %w", err))
+	}
+}
+
+type RequestData struct {
+	Email string `json:"email"`
+}
+
+type ResponseData struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
+// Handle an HTTP Request.
+func Handle(w http.ResponseWriter, r *http.Request) {
+	// ensure JSON request
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "Invalid Content-Type, expecting application/json", http.StatusUnsupportedMediaType)
+		return
+	}
+
+	var requestData RequestData
+
+	// decode request into variable
+	err := json.NewDecoder(r.Body).Decode(&requestData)
+	if err != nil {
+		http.Error(w, "Error processing request body", http.StatusBadRequest)
+		return
+	}
+
+	// check if the email is blank
+	if requestData.Email == "" {
+		http.Error(w, "Email is blank", http.StatusBadRequest)
+		return
+	}
+	workflowID := requestData.Email
+
+	// cancel the Workflow Execution
+	err = temporalClient.CancelWorkflow(context.Background(), workflowID, "")
+	if err != nil {
+		http.Error(w, "Couldn't unsubscribe. Please try again.", http.StatusInternalServerError)
+		log.Print(err)
+		return
+	}
+
+	// build response
+	responseData := ResponseData{
+		Status:  "success",
+		Message: "Unsubscribed.",
+	}
+
+	// send headers
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted) // 202 Accepted status code
+
+	// send response
+	if err := json.NewEncoder(w).Encode(responseData); err != nil {
+		log.Print("Could not encode response JSON", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+}

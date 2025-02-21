@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: subscription
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: subscription
+  template:
+    metadata:
+      labels:
+        app: subscription
+    spec:
+      containers:
+      - name: temporal-worker
+        image: temporal-worker:latest
+        env:
+        - name: TEMPORAL_ADDR
+          value: temporal-frontend.temporal.svc.cluster.local:7233

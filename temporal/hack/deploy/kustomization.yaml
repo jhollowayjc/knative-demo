@@ -1,0 +1,23 @@
+---
+kind: Kustomization
+
+namespace: temporal
+
+secretGenerator:
+- name: postgres-credentials
+  literals:
+  - username=temporal
+  - password=temporal
+
+resources:
+- ./postgresql/100-pvc.yaml
+- ./postgresql/200-statefulset.yaml
+- ./postgresql/300-service.yaml
+
+helmCharts:
+- name: temporal
+  releaseName: temporal
+  namespace: temporal
+  version: 0.44.0
+  valuesFile: ./values.yaml
+  repo: https://go.temporal.io/helm-charts
